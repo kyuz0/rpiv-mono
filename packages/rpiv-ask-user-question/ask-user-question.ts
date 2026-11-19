@@ -9,6 +9,7 @@ import {
 	resolveNotesKey,
 	validateGuidanceFields,
 } from "./config.ts";
+import { registerDeferredQuestions } from "./deferred-questions.ts";
 import {
 	ASK_USER_BLOCKED_EVENT,
 	ASK_USER_PROMPT_EVENT,
@@ -473,6 +474,7 @@ Preview content is rendered as markdown in a monospace box. Multi-line text with
 export function registerAskUserQuestionTool(pi: ExtensionAPI): void {
 	const guidance = validateGuidanceFields(loadConfig().guidance);
 	const answers = registerAnswerChannel(pi);
+	const defer = registerDeferredQuestions(pi);
 	pi.registerTool({
 		name: ASK_USER_QUESTION_TOOL_NAME,
 		label: "Ask User Question",
@@ -489,7 +491,7 @@ export function registerAskUserQuestionTool(pi: ExtensionAPI): void {
 		renderResult: (result, { expanded }, theme, context) =>
 			renderAskResult(result, context?.args, theme, { expanded, isError: context?.isError ?? false }),
 
-		async execute(toolCallId, params, _signal, _onUpdate, ctx) {
+		async execute(toolCallId, params, signal, _onUpdate, ctx) {
 			// Line-terminator normalization runs once here, ahead of validation, so
 			// every downstream consumer — validator, TUI, RPC walker, envelope, prompt
 			// event — sees the same clean text (#192).
@@ -503,6 +505,20 @@ export function registerAskUserQuestionTool(pi: ExtensionAPI): void {
 					cancelled: true,
 					error: validation.error,
 				});
+			}
+			if (typed.waitForAnswer === false) {
+				if (signal?.aborted) return buildQuestionnaireResponse(undefined, typed);
+				if (!hasDialogUI(ctx.ui)) return rejectWithoutUi();
+				const requestId = defer(typed, ctx);
+				return {
+					content: [
+						{
+							type: "text" as const,
+							text: `Question ${requestId} is pending. Continue only work that is independent of the answer.`,
+						},
+					],
+					details: { requestId, status: "pending" },
+				};
 			}
 
 			// RPC hosts (VSCode pendant, ACP clients like Zed/Paseo — issue #78):

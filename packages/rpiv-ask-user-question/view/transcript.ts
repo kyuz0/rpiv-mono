@@ -45,6 +45,14 @@ export function renderAskResult(
 	options: { expanded: boolean; isError: boolean },
 ): Component {
 	const details = isQuestionnaireResult(result.details) ? result.details : undefined;
+	if (
+		typeof result.details === "object" &&
+		result.details !== null &&
+		"status" in result.details &&
+		result.details.status === "pending"
+	) {
+		return new WidthLines(() => [theme.fg("dim", "Pending answer · /questions")]);
+	}
 	if (options.isError || details?.error) {
 		return new WidthLines(() => [theme.fg("error", `✗ ${firstTextLine(result)}`)]);
 	}

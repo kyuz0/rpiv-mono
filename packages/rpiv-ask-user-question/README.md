@@ -29,6 +29,8 @@ Rather than picking a strategy on your behalf, the model calls `ask_user_questio
 
 When the questionnaire begins waiting in an interactive TTY, it emits one standard terminal BEL (`\x07`). Your terminal configuration determines whether that appears as an audible alert, a visual alert, or nothing; redirected and non-TTY output is untouched.
 
+If the model can do useful work while waiting, it can set `waitForAnswer: false` for that questionnaire. In the terminal, use `/questions` to answer when ready. RPC clients can show the question while Pi works. Pi saves pending questions in the chat and delivers answers as user messages. The default is to wait for the answer.
+
 ![Single question in the dialog: the tab strip reads Feature Type, Design Tab, Testing, Release, Submit; the question Which real development task are we planning right now? sits above four numbered options — Bug fix (Recommended), New feature, Refactor, Perf tuning — each with a one-line description, followed by the appended Type something. row](https://raw.githubusercontent.com/juicesharp/rpiv-mono/main/packages/rpiv-ask-user-question/docs/single-question.jpg)
 
 When the model asks several things at once, `Tab` moves between them and a Submit tab reviews everything before it goes back:
