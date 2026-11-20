@@ -86,6 +86,12 @@ export const QuestionsSchema = Type.Array(QuestionSchema, {
 
 export const QuestionParamsSchema = Type.Object({
 	questions: QuestionsSchema,
+	waitForAnswer: Type.Optional(
+		Type.Boolean({
+			description:
+				"Defaults to true. Set false only when you can keep doing independent work without the answer. The user can answer while you work, and their response arrives as a later user message. Do not guess their answer or start work that depends on it.",
+		}),
+	),
 });
 
 export type OptionData = Static<typeof OptionSchema>;
