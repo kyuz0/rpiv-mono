@@ -39,6 +39,22 @@ it("describes the all-question custom-answer contract in the registered tool", (
 	expect(tool.description).toContain("reserved labels are rejected at runtime");
 });
 
+it("exposes plain-text form and chat-link guidance to the model", () => {
+	const { pi, captured } = createMockPi();
+	registerAskUserQuestionTool(pi);
+	const tool = captured.tools.get(TOOL_NAME)!;
+	for (const guidance of [tool.description, (tool.promptGuidelines as string[]).join("\n")]) {
+		expect(guidance).toContain("all question-form fields plain text");
+		expect(guidance).toContain("including headers, questions, option labels, descriptions, and previews");
+		expect(guidance).toContain("normal chat message before calling ask_user_question");
+		expect(guidance).toContain("Refer to that chat message in the question");
+		expect(guidance).not.toContain("preview markdown string");
+	}
+	const preview = tool.parameters.properties.questions.items.properties.options.items.properties.preview;
+	expect(preview.description).toContain("plain-text context");
+	expect(preview.description).toContain("normal chat before asking the question");
+});
+
 describe("registerAskUserQuestionTool — guidance overrides", () => {
 	it("uses built-in defaults when no config file exists", () => {
 		const { pi, captured } = createMockPi();
