@@ -3,6 +3,14 @@
 The complete programmatic surface of `ask_user_question`: what the model sends, what
 validation rejects, what comes back, and the event other extensions can listen to.
 
+## Model guidance
+
+Question forms should contain plain text, including option previews. The tool tells
+the model to send URLs, Markdown links, images, code blocks and other formatted
+content in a normal chat message before asking the question, then refer to that
+message in the form. Links and rich content do not work consistently across clients.
+The preview renderer remains available; this guidance does not reject tool arguments.
+
 ## Parameters
 
 ```ts

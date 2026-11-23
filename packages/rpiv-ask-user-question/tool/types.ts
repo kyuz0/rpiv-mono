@@ -49,7 +49,7 @@ export const OptionSchema = Type.Object({
 	preview: Type.Optional(
 		Type.String({
 			description:
-				"Optional preview content rendered when this option is focused. Use for mockups, code snippets, or visual comparisons that help users compare options. See the tool description for the expected content format.",
+				"Optional plain-text context displayed when this option is focused. Put URLs, images, code blocks, and other formatted content in normal chat before asking the question.",
 		}),
 	),
 });
